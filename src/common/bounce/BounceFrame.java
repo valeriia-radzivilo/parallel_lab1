@@ -1,87 +1,125 @@
 package common.bounce;
 
-import common.Ball;
 import common.BallThread;
-import common.Pocket;
+import common.objects.Ball;
+import common.objects.Pocket;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 public class BounceFrame extends JFrame {
     public static final int WIDTH = 450;
     public static final int HEIGHT = 350;
-    final Boolean usePockets;
     private final BallCanvas canvas;
+    private boolean usePockets = false;
 
-    private final ArrayList<Pocket> circles = new ArrayList<>(10);
+    private boolean usePriority = false;
+
+    private int ballsCount = 1;
+
+    private boolean addedPriorityBall = false;
 
     public BounceFrame(Boolean usePockets) {
         this.usePockets = usePockets;
 
-        initField();
+        initializeUI();
 
         this.canvas = new BallCanvas();
-        System.out.println("In Frame Thread name = " + Thread.currentThread().getName());
-        Container content = this.getContentPane();
+        Container content = getContentPane();
 
-
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(Color.lightGray);
-
+        JPanel buttonPanel = createButtonPanel();
 
         content.add(this.canvas, BorderLayout.CENTER);
+        content.add(buttonPanel, BorderLayout.SOUTH);
 
+        addPocketsIfRequired();
+    }
+
+    public BounceFrame(int ballsCount) {
+        this.usePriority = true;
+        this.ballsCount = ballsCount;
+
+        initializeUI();
+
+        this.canvas = new BallCanvas();
+        Container content = getContentPane();
+
+        JPanel buttonPanel = createButtonPanel();
+
+        content.add(this.canvas, BorderLayout.CENTER);
+        content.add(buttonPanel, BorderLayout.SOUTH);
+
+        addPocketsIfRequired();
+    }
+
+
+    private void initializeUI() {
+        setSize(WIDTH, HEIGHT);
+        setTitle("Bounce program");
+        setResizable(false);
+    }
+
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.lightGray);
 
         JButton buttonStart = new JButton("Start");
         JButton buttonStop = new JButton("Stop");
 
-        buttonStart.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Ball b = new Ball(canvas);
-                canvas.add(b);
-                BallThread thread = new BallThread(b);
-                thread.start();
-                System.out.println("Thread name = " + thread.getName());
-            }
-        });
-
-        buttonStop.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
+        buttonStart.addActionListener(e -> startBallThread(this.usePriority));
+        buttonStop.addActionListener(e -> System.exit(0));
 
         buttonPanel.add(buttonStart);
         buttonPanel.add(buttonStop);
 
-        content.add(buttonPanel, BorderLayout.SOUTH);
+        return buttonPanel;
+    }
 
+    private void startBallThread(boolean priorityTest) {
+
+
+        if (priorityTest) {
+
+
+            for (int i = 0; i < this.ballsCount; i++) {
+                Ball ball = new Ball(canvas, null, false);
+                canvas.add(ball);
+                BallThread thread = new BallThread(ball);
+                thread.start();
+                System.out.println("Thread name = " + thread.getName());
+            }
+            if (!addedPriorityBall) {
+                Ball redBall = new Ball(canvas, Color.RED, false);
+                canvas.add(redBall);
+                BallThread redThread = new BallThread(redBall);
+                redThread.setPriority(Thread.MAX_PRIORITY);
+                redThread.start();
+                System.out.println("Red thread name = " + redThread.getName());
+                addedPriorityBall = true;
+            }
+        } else {
+            Ball ball = new Ball(canvas, null, true);
+            canvas.add(ball);
+            BallThread thread = new BallThread(ball);
+            thread.start();
+            System.out.println("Thread name = " + thread.getName());
+        }
+    }
+
+
+    private void addPocketsIfRequired() {
         if (usePockets) {
             addPockets();
         }
     }
 
-
-    private void initField() {
-        this.setSize(WIDTH, HEIGHT);
-        this.setTitle("Bounce program");
-        this.setResizable(false);
-
-    }
-
     private void addPockets() {
-
-
-        canvas.add(new Pocket(Color.PINK, Pocket.getRadius(), Pocket.getRadius()));
-        canvas.add(new Pocket(Color.RED, WIDTH - Pocket.getRadius() * 2, Pocket.getRadius()));
-        canvas.add(new Pocket(Color.GREEN, Pocket.getRadius(), HEIGHT - Pocket.getRadius() * 4));
-        canvas.add(new Pocket(Color.YELLOW, WIDTH - Pocket.getRadius() * 2, HEIGHT - Pocket.getRadius() * 4));
-
+        int radius = Pocket.getRadius();
+        canvas.add(new Pocket(Color.DARK_GRAY, radius, radius * 2));
+        canvas.add(new Pocket(Color.RED, WIDTH - 2 * radius, radius * 2));
+        canvas.add(new Pocket(Color.GREEN, radius, HEIGHT - 4 * radius));
+        canvas.add(new Pocket(Color.BLUE, WIDTH - 2 * radius, HEIGHT - 4 * radius));
     }
+
 
 }

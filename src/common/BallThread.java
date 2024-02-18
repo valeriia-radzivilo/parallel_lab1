@@ -1,5 +1,7 @@
 package common;
 
+import common.objects.Ball;
+
 public class BallThread extends Thread {
     private final Ball b;
 
@@ -14,7 +16,7 @@ public class BallThread extends Thread {
             for (int i = 1; i < 10000; i++) {
                 b.move();
 
-                if (b.isInPocket) {
+                if (b.getIsInPocket()) {
                     // Thread.currentThread().interrupt();
                     break;
                 }

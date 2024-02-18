@@ -1,4 +1,4 @@
-package common;
+package common.objects;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -10,6 +10,8 @@ public class Pocket {
     private final Ellipse2D shape;
 
     private final Color color;
+
+    private int score = 0;
 
     public Pocket(Color color, int x, int y) {
         this.x = x;
@@ -44,5 +46,10 @@ public class Pocket {
     public void draw(Graphics2D g2) {
         g2.setColor(this.color);
         g2.fill(new Ellipse2D.Double(x - RADIUS, y - RADIUS, RADIUS * 2, RADIUS * 2));
+        g2.drawString(String.valueOf(score), x - RADIUS, y - RADIUS);
+    }
+
+    public void addScore() {
+        score += 1;
     }
 }

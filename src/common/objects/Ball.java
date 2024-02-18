@@ -1,4 +1,4 @@
-package common;
+package common.objects;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -10,16 +10,17 @@ public class Ball {
     private static final int YSIZE = 20;
     // These are the variables that store the ball's position and movement increments
     private final Component canvas;
-
-    public boolean isInPocket = false;
+    private final Color color;
+    private boolean isInPocket = false;
     private int x = 0;
     private int y = 0;
     private int dx = 2;
     private int dy = 2;
 
     // This is the constructor that initializes the ball's position randomly
-    public Ball(Component c) {
+    public Ball(Component c, Color color) {
         this.canvas = c;
+        this.color = color != null ? color : Color.darkGray;
         if (Math.random() < 0.5)
             x = new Random().nextInt(this.canvas.getWidth());
         else
@@ -30,9 +31,28 @@ public class Ball {
             y = new Random().nextInt(this.canvas.getHeight());
     }
 
+    public Ball(Component c, Color color, boolean isRandomStart) {
+        this.canvas = c;
+        this.color = color != null ? color : Color.darkGray;
+        if (isRandomStart) {
+            if (Math.random() < 0.5)
+                x = new Random().nextInt(this.canvas.getWidth());
+            else
+                y = new Random().nextInt(this.canvas.getHeight());
+            if (Math.random() < 0.5)
+                x = 0;
+            else
+                y = new Random().nextInt(this.canvas.getHeight());
+        } else {
+            x = 0;
+            y = this.canvas.getHeight() / 2;
+
+        }
+    }
+
     // This is the method that draws the ball on the screen
     public void draw(Graphics2D g2) {
-        g2.setColor(Color.darkGray);
+        g2.setColor(this.color);
         g2.fill(new Ellipse2D.Double(x, y, XSIZE, YSIZE));
     }
 
@@ -57,6 +77,14 @@ public class Ball {
             dy = -dy;
         }
         this.canvas.repaint();
+    }
+
+    public boolean getIsInPocket() {
+        return this.isInPocket;
+    }
+
+    public void setInPocket(boolean inPocket) {
+        this.isInPocket = inPocket;
     }
 
     public boolean isInPocket(Pocket pocket) {
