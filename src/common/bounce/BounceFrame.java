@@ -12,14 +12,23 @@ public class BounceFrame extends JFrame {
     public static final int HEIGHT = 350;
 
     private final BallCanvas canvas;
-    private boolean usePockets = false;
-    private boolean usePriority = false;
-    private int ballsCount = 1;
-    private boolean addedPriorityBall = false;
 
-    public BounceFrame(boolean usePockets) {
+
+    /// TASKS VARIABLES
+
+    private boolean usePockets = false; // Task 2
+    private boolean usePriority = false; // Task 3
+    private int ballsCount = 1; // Task 3
+    private boolean addedPriorityBall = false; // Task 3
+
+    private boolean useJoin = false; // Task 4
+
+    private Thread currentThread;
+
+    public BounceFrame(boolean usePockets, boolean useJoin) {
         this.canvas = new BallCanvas();
         this.usePockets = usePockets;
+        this.useJoin = useJoin;
         initializeUI();
         createAndSetupUI();
     }
@@ -66,7 +75,7 @@ public class BounceFrame extends JFrame {
     }
 
     private void startBallThread(boolean priorityTest) {
-        if (priorityTest) {
+        if (priorityTest || useJoin) {
             for (int i = 0; i < ballsCount; i++) {
                 addRegularBall();
             }
@@ -80,21 +89,45 @@ public class BounceFrame extends JFrame {
     }
 
     private void addRedBall() {
-        Ball redBall = new Ball(canvas, Color.RED, false);
-        canvas.add(redBall);
-        BallThread redThread = new BallThread(redBall);
-        redThread.setPriority(Thread.MAX_PRIORITY);
-        redThread.start();
-        System.out.println("Red thread name = " + redThread.getName());
-        addedPriorityBall = true;
+        try {
+            Ball redBall = new Ball(canvas, Color.RED, false);
+            canvas.add(redBall);
+            BallThread redThread = new BallThread(redBall);
+            redThread.setPriority(Thread.MAX_PRIORITY);
+            if (useJoin) {
+                if (currentThread != null) {
+                    currentThread.join();
+                }
+                currentThread = redThread;
+
+            }
+            redThread.start();
+
+            System.out.println("Red thread name = " + redThread.getName());
+            addedPriorityBall = true;
+        } catch (InterruptedException e) {
+            System.out.println("Interrupted thread " + Thread.currentThread().getName());
+        }
     }
 
     private void addRegularBall() {
-        Ball ball = new Ball(canvas, null, !this.usePriority);
-        canvas.add(ball);
-        BallThread thread = new BallThread(ball);
-        thread.start();
-        System.out.println("Thread name = " + thread.getName());
+        try {
+            Ball ball = new Ball(canvas, null, !this.usePriority);
+            canvas.add(ball);
+            BallThread thread = new BallThread(ball);
+            if (useJoin) {
+                if (currentThread != null) {
+                    currentThread.join();
+                }
+                currentThread = thread;
+
+            }
+            thread.start();
+            
+            System.out.println("Thread name = " + thread.getName());
+        } catch (InterruptedException e) {
+            System.out.println("Interrupted thread " + Thread.currentThread().getName());
+        }
     }
 
     private void addPocketsIfRequired() {

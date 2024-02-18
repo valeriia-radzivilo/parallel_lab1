@@ -6,7 +6,7 @@ import javax.swing.*;
 
 public class MainTask1 {
     public static void main(String[] args) {
-        BounceFrame frame = new BounceFrame(false);
+        BounceFrame frame = new BounceFrame(false, false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setVisible(true);
