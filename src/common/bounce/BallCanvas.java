@@ -22,22 +22,34 @@ public class BallCanvas extends JPanel {
         this.pockets.add(p);
     }
 
+    public void remove(Ball b) {
+        
+        this.balls.remove(b);
+    }
+
     @Override
     public void paintComponent(Graphics g) {
-
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
 
-        for (Ball b : balls) {
-
-            b.draw(g2);
+        try {
+            for (Ball b : balls) {
+                for (Pocket p : pockets) {
+                    if (b.isInPocket(p)) {
+                        b.isInPocket = true;
+                        remove(b);
+                        break;
+                    }
+                }
+                if (!b.isInPocket) {
+                    b.draw(g2);
+                }
+            }
+        } catch (Exception ignored) {
         }
-        for (Pocket p : pockets) {
 
+        for (Pocket p : pockets) {
             p.draw(g2);
         }
-
-        //this.setBackground(Color.green);
     }
 }

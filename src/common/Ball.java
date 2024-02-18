@@ -6,10 +6,12 @@ import java.util.Random;
 
 // This is a class that represents a ball that can bounce around a graphical component
 public class Ball {
-    // These are the variables that store the ball's position and movement increments
-    private Component canvas;
     private static final int XSIZE = 20;
     private static final int YSIZE = 20;
+    // These are the variables that store the ball's position and movement increments
+    private final Component canvas;
+
+    public boolean isInPocket = false;
     private int x = 0;
     private int y = 0;
     private int dx = 2;
@@ -39,17 +41,28 @@ public class Ball {
         x += dx;
         y += dy;
         if (x < 0) {
-            x=0; dx=-dx;
+            x = 0;
+            dx = -dx;
         }
         if (x + XSIZE >= this.canvas.getWidth()) {
-            x=this.canvas.getWidth() - XSIZE; dx=-dx;
+            x = this.canvas.getWidth() - XSIZE;
+            dx = -dx;
         }
-        if (y<0) {
-            y=0; dy=-dy;
+        if (y < 0) {
+            y = 0;
+            dy = -dy;
         }
         if (y + YSIZE >= this.canvas.getHeight()) {
-            y=this.canvas.getHeight() - YSIZE; dy=-dy;
+            y = this.canvas.getHeight() - YSIZE;
+            dy = -dy;
         }
         this.canvas.repaint();
+    }
+
+    public boolean isInPocket(Pocket pocket) {
+        double distance =
+                Math.sqrt(Math.pow(pocket.getX() - this.x, 2) + Math.pow(pocket.getY() - this.y, 2));
+
+        return distance + XSIZE < Pocket.getRadius() * 1.5;
     }
 }
