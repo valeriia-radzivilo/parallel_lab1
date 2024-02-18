@@ -23,7 +23,7 @@ public class BounceFrame extends JFrame {
 
     private boolean useJoin = false; // Task 4
 
-    private Thread currentThread;
+    private BallThread currentThread;
 
     public BounceFrame(boolean usePockets, boolean useJoin) {
         this.canvas = new BallCanvas();
@@ -89,45 +89,32 @@ public class BounceFrame extends JFrame {
     }
 
     private void addRedBall() {
-        try {
-            Ball redBall = new Ball(canvas, Color.RED, false);
-            canvas.add(redBall);
-            BallThread redThread = new BallThread(redBall);
+        Ball redBall = new Ball(canvas, Color.RED, false);
+        canvas.add(redBall);
+        BallThread redThread = new BallThread(redBall, currentThread);
+        if (usePriority) {
             redThread.setPriority(Thread.MAX_PRIORITY);
-            if (useJoin) {
-                if (currentThread != null) {
-                    currentThread.join();
-                }
-                currentThread = redThread;
-
-            }
-            redThread.start();
-
-            System.out.println("Red thread name = " + redThread.getName());
-            addedPriorityBall = true;
-        } catch (InterruptedException e) {
-            System.out.println("Interrupted thread " + Thread.currentThread().getName());
         }
+        if (useJoin) {
+            currentThread = redThread;
+
+        }
+        redThread.start();
+
+        System.out.println("Red thread name = " + redThread.getName());
+        addedPriorityBall = true;
     }
 
     private void addRegularBall() {
-        try {
-            Ball ball = new Ball(canvas, null, !this.usePriority);
-            canvas.add(ball);
-            BallThread thread = new BallThread(ball);
-            if (useJoin) {
-                if (currentThread != null) {
-                    currentThread.join();
-                }
-                currentThread = thread;
-
-            }
-            thread.start();
-            
-            System.out.println("Thread name = " + thread.getName());
-        } catch (InterruptedException e) {
-            System.out.println("Interrupted thread " + Thread.currentThread().getName());
+        Ball ball = new Ball(canvas, null, !this.usePriority);
+        canvas.add(ball);
+        BallThread thread = new BallThread(ball, currentThread);
+        thread.start();
+        if (useJoin) {
+            currentThread = thread;
         }
+
+        System.out.println("Thread name = " + thread.getName());
     }
 
     private void addPocketsIfRequired() {
